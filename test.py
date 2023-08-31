@@ -3,7 +3,6 @@ import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime
-import time
 
 # MQTT Callbacks
 def on_connect(client, userdata, flags, rc):
@@ -21,17 +20,17 @@ def on_message(client, userdata, msg):
     # Google Sheets
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     credentials = ServiceAccountCredentials.from_json_keyfile_name('key.json', scope)
-    client = gspread.authorize(credentials)
+    gspread_client = gspread.authorize(credentials)
 
-    spreadsheet = client.open_by_url('https://docs.google.com/spreadsheets/d/1YQ0jEzjVzSNQMff9rH0Vu-7PcldXzE5V_3l8kavfvdc/edit?usp=sharing')
+    spreadsheet = gspread_client.open_by_url('https://docs.google.com/spreadsheets/d/1YQ0jEzjVzSNQMff9rH0Vu-7PcldXzE5V_3l8kavfvdc/edit?usp=sharing')
     worksheet = spreadsheet.get_worksheet(0)
 
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
     data_to_insert = [formatted_time, co2Input, co2Output]
 
-    time.sleep(60)
-    worksheet.append_row(data_to_insert)
+    # Masukkan data ke baris baru di bagian atas worksheet
+    worksheet.insert_row(data_to_insert, 2)
 
 # MQTT Client Setup
 client = mqtt.Client("client-2")
